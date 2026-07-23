@@ -1,5 +1,5 @@
-import type { DiffResult, GateStatus } from '../types';
+import type { GateStatus } from '../types';
 
-export function evaluateGate(result: DiffResult, gateThreshold: number): GateStatus {
-  return result.mismatchPercent <= gateThreshold ? 'pass' : 'fail';
+export function evaluateGate(mismatchPercent: number, gateThreshold: number): GateStatus {
+  return mismatchPercent <= gateThreshold ? 'pass' : 'fail';
 }
