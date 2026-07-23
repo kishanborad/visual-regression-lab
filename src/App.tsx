@@ -11,6 +11,8 @@ import DiffPanel from './canvas/DiffPanel';
 import ControlBar from './controls/ControlBar';
 import DropZone from './upload/DropZone';
 import { padToMatch } from './upload/imageLoader';
+import BottomTabs from './deploy/BottomTabs';
+import { DEFAULT_DIFF_SCRIPT } from './engine/diffScript';
 
 export default function App() {
   const [config, setConfig] = useState<DiffConfig>(DEFAULT_CONFIG);
@@ -23,6 +25,7 @@ export default function App() {
   const [baselineImage, setBaselineImage] = useState<ImageData | null>(null);
   const [candidateImage, setCandidateImage] = useState<ImageData | null>(null);
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [diffScript, setDiffScript] = useState(DEFAULT_DIFF_SCRIPT);
 
   const baselineIframeRef = useRef<HTMLIFrameElement>(null);
   const candidateIframeRef = useRef<HTMLIFrameElement>(null);
@@ -80,6 +83,7 @@ export default function App() {
         baseline.height,
         config,
         ignoreRegions,
+        diffScript,
       );
 
       setResult(diffResult);
@@ -98,7 +102,7 @@ export default function App() {
     } finally {
       setRunning(false);
     }
-  }, [running, isCustom, baselineImage, candidateImage, config, ignoreRegions]);
+  }, [running, isCustom, baselineImage, candidateImage, config, ignoreRegions, diffScript]);
 
   return (
     <div className="h-screen flex flex-col bg-vr-bg overflow-hidden">
@@ -149,7 +153,7 @@ export default function App() {
       )}
 
       {/* Three panels */}
-      <div className="flex-1 flex gap-3 px-4 pb-3 min-h-0 mt-3">
+      <div className="flex-1 flex gap-3 px-4 min-h-0 mt-3">
         {isCustom && !baselineImage ? (
           <DropZone label="Drop baseline image" onImageLoad={setBaselineImage} />
         ) : (
@@ -175,6 +179,13 @@ export default function App() {
           <DiffPanel diffResult={result} gateStatus={gateStatus} />
         </div>
       </div>
+
+      {/* Bottom tabs: Script editor and Deploy CI/CD configs */}
+      <BottomTabs
+        config={config}
+        diffScript={diffScript}
+        onDiffScriptChange={setDiffScript}
+      />
     </div>
   );
 }
