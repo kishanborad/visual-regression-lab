@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', system-ui, sans-serif;
+      background: #0d0d1a;
+      color: #f4f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .scenario { display: none; width: 100%; max-width: 400px; }
+    .scenario.active { display: block; }
+
+    /* ── Scenario 1: Button Shift (Login Form) ── */
+    .login-card {
+      background: rgba(20, 20, 30, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(12px);
+    }
+    .login-card h2 { font-size: 22px; font-weight: 600; margin-bottom: 24px; text-align: center; }
+    .login-card label { display: block; font-size: 13px; color: #aaa6c3; margin-bottom: 6px; }
+    .login-card input {
+      width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: #050816; color: #f4f4f6; font-size: 14px; margin-bottom: 16px; outline: none;
+    }
+    .login-card .submit-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #818cf8); color: white; font-weight: 600;
+      font-size: 15px; transition: all 0.2s;
+    }
+    /* Version B mutation: button shifts */
+    [data-version="b"] .login-card .submit-btn {
+      margin-left: 3px;
+      margin-top: 2px;
+    }
+
+    /* ── Scenario 2: Color Swap (Pricing Card) ── */
+    .pricing-card {
+      background: rgba(20, 20, 30, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+    .pricing-card h2 { font-size: 20px; font-weight: 600; color: #f4f4f6; margin-bottom: 8px; }
+    .pricing-card .price { font-size: 42px; font-weight: 700; color: #818cf8; margin: 16px 0; }
+    .pricing-card .price span { font-size: 16px; color: #aaa6c3; font-weight: 400; }
+    .pricing-card ul { list-style: none; text-align: left; margin: 20px 0; }
+    .pricing-card li { padding: 8px 0; font-size: 14px; color: #aaa6c3; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .pricing-card li::before { content: '✓ '; color: #22c55e; }
+    .pricing-card .cta-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer;
+      background: #6366f1; color: white; font-weight: 600; font-size: 15px;
+    }
+    /* Version B: CTA color changes, header lightens */
+    [data-version="b"] .pricing-card .cta-btn { background: #4f46e5; }
+    [data-version="b"] .pricing-card h2 { color: #c7c7d4; }
+
+    /* ── Scenario 3: Missing Element (Dashboard Card) ── */
+    .dashboard-card {
+      background: rgba(20, 20, 30, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .dashboard-card .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .dashboard-card .avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;
+    }
+    .dashboard-card .name { font-weight: 600; font-size: 16px; }
+    .dashboard-card .role { font-size: 13px; color: #aaa6c3; }
+    .dashboard-card .stats { display: flex; gap: 16px; margin-bottom: 20px; }
+    .dashboard-card .stat {
+      flex: 1; text-align: center; padding: 12px; border-radius: 10px;
+      background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);
+    }
+    .dashboard-card .stat-value { font-size: 22px; font-weight: 700; color: #818cf8; }
+    .dashboard-card .stat-label { font-size: 11px; color: #aaa6c3; margin-top: 4px; }
+    .dashboard-card .progress-bar {
+      height: 8px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .dashboard-card .progress-fill {
+      height: 100%; width: 72%; border-radius: 4px;
+      background: linear-gradient(90deg, #6366f1, #22c55e);
+    }
+    .dashboard-card .progress-label { font-size: 12px; color: #aaa6c3; margin-top: 8px; }
+    /* Version B: progress bar disappears */
+    [data-version="b"] .dashboard-card .progress-bar { display: none; }
+    [data-version="b"] .dashboard-card .progress-label { display: none; }
+
+    /* ── Scenario 4: Font Change (Blog Preview) ── */
+    .blog-preview {
+      background: rgba(20, 20, 30, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(12px);
+    }
+    .blog-preview h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 12px;
+    }
+    .blog-preview .meta { font-size: 13px; color: #64648a; margin-bottom: 20px; }
+    .blog-preview .meta span { color: #818cf8; }
+    .blog-preview p {
+      font-size: 15px; color: #aaa6c3; line-height: 1.7;
+    }
+    /* Version B: title font changes */
+    [data-version="b"] .blog-preview h2 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    /* ── Scenario 5: Spacing Collapse (Settings Page) ── */
+    .settings-page {
+      background: rgba(20, 20, 30, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .settings-page h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .settings-section { margin-bottom: 24px; }
+    .settings-section h3 { font-size: 13px; color: #818cf8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+    .settings-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .settings-row .label { font-size: 14px; }
+    .settings-row .sublabel { font-size: 12px; color: #64648a; margin-top: 2px; }
+    .toggle {
+      width: 40px; height: 22px; border-radius: 11px; background: rgba(255,255,255,0.15);
+      position: relative; cursor: pointer;
+    }
+    .toggle.on { background: #6366f1; }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%; background: white;
+      transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(18px); }
+    .section-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 24px 0; }
+    /* Version B: spacing collapses, divider disappears */
+    [data-version="b"] .settings-section { margin-bottom: 8px; }
+    [data-version="b"] .section-divider { display: none; }
+  </style>
+</head>
+<body data-scenario="button-shift" data-version="a">
+
+  <!-- Scenario 1: Login Form -->
+  <div class="scenario" id="button-shift">
+    <div class="login-card">
+      <h2>Welcome Back</h2>
+      <label>Email</label>
+      <input type="email" value="jane@example.com" readonly />
+      <label>Password</label>
+      <input type="password" value="••••••••" readonly />
+      <button class="submit-btn">Sign In</button>
+    </div>
+  </div>
+
+  <!-- Scenario 2: Pricing Card -->
+  <div class="scenario" id="color-swap">
+    <div class="pricing-card">
+      <h2>Pro Plan</h2>
+      <div class="price">$29<span>/month</span></div>
+      <ul>
+        <li>Unlimited projects</li>
+        <li>Priority support</li>
+        <li>Advanced analytics</li>
+        <li>Custom integrations</li>
+      </ul>
+      <button class="cta-btn">Get Started</button>
+    </div>
+  </div>
+
+  <!-- Scenario 3: Dashboard Card -->
+  <div class="scenario" id="missing-element">
+    <div class="dashboard-card">
+      <div class="header">
+        <div class="avatar">KB</div>
+        <div>
+          <div class="name">Kishan Borad</div>
+          <div class="role">Senior Engineer</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-value">142</div><div class="stat-label">Commits</div></div>
+        <div class="stat"><div class="stat-value">38</div><div class="stat-label">PRs</div></div>
+        <div class="stat"><div class="stat-value">97%</div><div class="stat-label">Coverage</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="progress-label">Sprint progress: 72%</div>
+    </div>
+  </div>
+
+  <!-- Scenario 4: Blog Preview -->
+  <div class="scenario" id="font-change">
+    <div class="blog-preview">
+      <h2>Building Scalable Visual Testing Pipelines</h2>
+      <div class="meta">By <span>Kishan Borad</span> · July 23, 2026 · 8 min read</div>
+      <p>Visual regression testing catches the bugs that unit tests miss. A shifted button, a changed color, a missing element — these are the regressions that slip through code review and land in production. This guide walks through building a pixel-comparison pipeline from scratch.</p>
+    </div>
+  </div>
+
+  <!-- Scenario 5: Settings Page -->
+  <div class="scenario" id="spacing-collapse">
+    <div class="settings-page">
+      <h2>Settings</h2>
+      <div class="settings-section">
+        <h3>Notifications</h3>
+        <div class="settings-row">
+          <div><div class="label">Email alerts</div><div class="sublabel">Get notified on failures</div></div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="settings-row">
+          <div><div class="label">Slack integration</div><div class="sublabel">Post to #qa-alerts</div></div>
+          <div class="toggle"></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="settings-section">
+        <h3>Comparison</h3>
+        <div class="settings-row">
+          <div><div class="label">Anti-aliasing</div><div class="sublabel">Skip aliased pixels</div></div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="settings-row">
+          <div><div class="label">Auto-approve</div><div class="sublabel">Accept diffs under 0.1%</div></div>
+          <div class="toggle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Read scenario and version from URL params or body attributes
+    const params = new URLSearchParams(window.location.search);
+    const scenario = params.get('scenario') || document.body.dataset.scenario || 'button-shift';
+    const version = params.get('version') || document.body.dataset.version || 'a';
+
+    document.body.dataset.scenario = scenario;
+    document.body.dataset.version = version;
+
+    // Activate the matching scenario
+    document.querySelectorAll('.scenario').forEach(el => {
+      el.classList.toggle('active', el.id === scenario);
+    });
+
+    // Listen for postMessage to switch scenario/version dynamically
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'setScenario') {
+        document.body.dataset.scenario = e.data.scenario;
+        document.body.dataset.version = e.data.version;
+        document.querySelectorAll('.scenario').forEach(el => {
+          el.classList.toggle('active', el.id === e.data.scenario);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
