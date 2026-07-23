@@ -1,7 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import type { DiffConfig, DiffResult, GateStatus, IgnoreRegion, StatsData } from './types';
-import { DEFAULT_CONFIG } from './types';
 import { runDiff } from './engine/diffEngine';
 import { evaluateGate } from './engine/gateLogic';
 import ScenarioFrame from './scenarios/ScenarioFrame';
@@ -13,13 +12,14 @@ import DropZone from './upload/DropZone';
 import { padToMatch } from './upload/imageLoader';
 import BottomTabs from './deploy/BottomTabs';
 import { DEFAULT_DIFF_SCRIPT } from './engine/diffScript';
+import { saveSettings, loadSettings, saveIgnoreRegions, loadIgnoreRegions, saveLastScenario, loadLastScenario } from './persistence/storage';
 
 export default function App() {
-  const [config, setConfig] = useState<DiffConfig>(DEFAULT_CONFIG);
-  const [selectedScenario, setSelectedScenario] = useState('button-shift');
+  const [config, setConfig] = useState<DiffConfig>(() => loadSettings());
+  const [selectedScenario, setSelectedScenario] = useState(() => loadLastScenario());
   const [result, setResult] = useState<DiffResult | null>(null);
   const [gateStatus, setGateStatus] = useState<GateStatus>('idle');
-  const [ignoreRegions, setIgnoreRegions] = useState<IgnoreRegion[]>([]);
+  const [ignoreRegions, setIgnoreRegions] = useState<IgnoreRegion[]>(() => loadIgnoreRegions(loadLastScenario()));
   const [running, setRunning] = useState(false);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
   const [baselineImage, setBaselineImage] = useState<ImageData | null>(null);
@@ -29,6 +29,10 @@ export default function App() {
 
   const baselineIframeRef = useRef<HTMLIFrameElement>(null);
   const candidateIframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Persist config and ignore regions whenever they change
+  useEffect(() => { saveSettings(config); }, [config]);
+  useEffect(() => { saveIgnoreRegions(selectedScenario, ignoreRegions); }, [selectedScenario, ignoreRegions]);
 
   const isCustom = selectedScenario === 'custom';
 
@@ -127,11 +131,13 @@ export default function App() {
         onConfigChange={setConfig}
         selectedScenario={selectedScenario}
         onScenarioChange={(id) => {
+          saveIgnoreRegions(selectedScenario, ignoreRegions);
           setSelectedScenario(id);
+          saveLastScenario(id);
           setResult(null);
           setGateStatus('idle');
           setStats(null);
-          setIgnoreRegions([]);
+          setIgnoreRegions(loadIgnoreRegions(id));
           setBaselineImage(null);
           setCandidateImage(null);
         }}
@@ -153,7 +159,7 @@ export default function App() {
       )}
 
       {/* Three panels */}
-      <div className="flex-1 flex gap-3 px-4 min-h-0 mt-3">
+      <div className="flex-1 flex flex-col lg:flex-row gap-3 px-4 pb-3 min-h-0 mt-3">
         {isCustom && !baselineImage ? (
           <DropZone label="Drop baseline image" onImageLoad={setBaselineImage} />
         ) : (
