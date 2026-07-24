@@ -1,0 +1,74 @@
+name: Visual Regression Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'python/**'
+
+jobs:
+  visual-check:
+    name: Visual Regression
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install -r python/requirements.txt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Capture screenshots
+        run: |
+          npx playwright install chromium
+          scripts/capture-screenshots.sh
+
+      - name: Run visual comparison
+        run: |
+          cd python
+          python batch_compare.py \
+            --baseline-dir ../screenshots/baseline \
+            --candidate-dir ../screenshots/candidate \
+            --output-dir ../reports \
+            --threshold 10 \
+            --gate 0.5
+
+      - name: Upload diff artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-report
+          path: reports/
+          retention-days: 14
+
+      - name: Check gate
+        run: |
+          if [ -f reports/summary.json ]; then
+            python -c "
+import json, sys
+with open('reports/summary.json') as f:
+    summary = json.load(f)
+if summary.get('gate_status') == 'fail':
+    print(f'FAIL: {summary[\"failed_count\"]} comparisons exceeded threshold')
+    sys.exit(1)
+print(f'PASS: all {summary[\"total_count\"]} comparisons within threshold')
+"
+          fi

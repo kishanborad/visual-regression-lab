@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  visual-regression:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./screenshots:/app/screenshots
+      - ./reports:/app/reports
+    environment:
+      - THRESHOLD=10
+      - GATE_THRESHOLD=0.5
+      - ANTI_ALIASING=true
+    command: >
+      python batch_compare.py
+        --baseline-dir /app/screenshots/baseline
+        --candidate-dir /app/screenshots/candidate
+        --output-dir /app/reports
+        --threshold ${THRESHOLD:-10}
+        --gate ${GATE_THRESHOLD:-0.5}
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: pytest tests/ -v --cov=. --cov-report=term-missing
